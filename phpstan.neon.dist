@@ -6,6 +6,10 @@ parameters:
         - database
         - routes
     tmpDir: build/phpstan
+    # Larastan boots Testbench per worker. Parallel workers race on Windows when
+    # rewriting bootstrap/cache/services.php (rename Access is denied / code 5).
+    parallel:
+        maximumNumberOfProcesses: 1
     ignoreErrors:
         -
             # Package config lives outside a Laravel app config/ root; env() here is intentional.
