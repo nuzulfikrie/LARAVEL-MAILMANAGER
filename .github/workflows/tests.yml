@@ -26,10 +26,13 @@ jobs:
         laravel: [12.*, 13.*]
         stability: [prefer-lowest, prefer-stable]
         include:
+          # testbench and testbench-dusk major versions must stay aligned
           - laravel: 12.*
             testbench: 10.*
+            testbench-dusk: 10.*
           - laravel: 13.*
             testbench: 11.*
+            testbench-dusk: 11.*
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -49,7 +52,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          # Pin framework for the matrix; keep testbench packages in require-dev (--dev).
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+          composer require --dev "orchestra/testbench:${{ matrix.testbench }}" "orchestra/testbench-dusk:${{ matrix.testbench-dusk }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
           # Force single-process type-coverage (Pokio multi-fork corrupts .temp/v3.php on CI)
