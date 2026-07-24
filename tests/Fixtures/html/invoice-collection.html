@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+<p>Hello {customer_name},</p>
+<p>Invoice {invoice_number} is ready.</p>
+<table data-email-collection="invoice_items" width="100%" cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+    <thead>
+    <tr>
+        <th align="left">Description</th>
+        <th align="right">Quantity</th>
+        <th align="right">Unit Price</th>
+        <th align="right">Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr data-email-row-template>
+        <td>{description}</td>
+        <td>{quantity}</td>
+        <td>{unit_price}</td>
+        <td>{total}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

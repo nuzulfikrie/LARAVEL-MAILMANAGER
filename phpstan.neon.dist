@@ -1,0 +1,17 @@
+parameters:
+    level: 7
+    paths:
+        - src
+        - config
+        - database
+        - routes
+    tmpDir: build/phpstan
+    ignoreErrors:
+        -
+            # Package config lives outside a Laravel app config/ root; env() here is intentional.
+            identifier: larastan.noEnvCallsOutsideOfConfig
+            path: config/*
+        -
+            # Class-level @use + HasFactory with Auditable trait confuses generic resolution.
+            identifier: missingType.generics
+            path: src/Models/*
