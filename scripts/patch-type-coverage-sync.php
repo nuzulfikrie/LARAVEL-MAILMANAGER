@@ -9,7 +9,6 @@ declare(strict_types=1);
  *   ParseError in vendor/pestphp/pest-plugin-type-coverage/.temp/v3.php
  *   (");rray (" from concurrent writers)
  */
-
 $root = dirname(__DIR__);
 $analyserPath = $root.'/vendor/pestphp/pest-plugin-type-coverage/src/Analyser.php';
 $cachePath = $root.'/vendor/pestphp/pest-plugin-type-coverage/src/Support/Cache.php';
@@ -21,6 +20,7 @@ if (! is_file($analyserPath)) {
 }
 
 $analyser = file_get_contents($analyserPath);
+
 if ($analyser === false) {
     fwrite(STDERR, "type-coverage patch: cannot read Analyser.php\n");
     exit(1);
@@ -65,6 +65,7 @@ PHP;
     foreach ($fromMaxCandidates as $fromMax) {
         if (str_contains($analyser, $fromMax)) {
             $matchedMax = $fromMax;
+
             break;
         }
     }
@@ -89,6 +90,7 @@ PHP;
 
 if (is_file($cachePath)) {
     $cache = file_get_contents($cachePath);
+
     if ($cache !== false && ! str_contains($cache, 'MAILMANAGER_SAFE_TYPE_COVERAGE_CACHE')) {
         $fromInclude = <<<'PHP'
             $cache = include $this->file();
@@ -188,6 +190,7 @@ PHP;
 
 // Wipe cache artifacts.
 $tempDir = $root.'/vendor/pestphp/pest-plugin-type-coverage/.temp';
+
 if (is_dir($tempDir)) {
     foreach (glob($tempDir.'/*') ?: [] as $file) {
         if (is_file($file)) {
@@ -197,6 +200,7 @@ if (is_dir($tempDir)) {
 }
 
 $verify = file_get_contents($analyserPath) ?: '';
+
 if (! str_contains($verify, $marker)) {
     fwrite(STDERR, "type-coverage patch: verification failed\n");
     exit(1);
@@ -216,6 +220,7 @@ foreach ([$analyserPath, $cachePath] as $file) {
     $out = [];
     $code = 0;
     exec(escapeshellarg(PHP_BINARY).' -l '.escapeshellarg($file).' 2>&1', $out, $code);
+
     if ($code !== 0) {
         fwrite(STDERR, "type-coverage patch: php -l failed for {$file}\n".implode("\n", $out)."\n");
         exit(1);

@@ -5,7 +5,6 @@ declare(strict_types=1);
 /**
  * CI-safe type coverage entrypoint used by `composer test:types`.
  */
-
 $root = dirname(__DIR__);
 $patcher = $root.'/scripts/patch-type-coverage-sync.php';
 $pest = $root.'/vendor/bin/pest';
@@ -21,6 +20,7 @@ if (! is_file($pest)) {
 // 1) Patch vendor plugin (idempotent).
 if (is_file($patcher)) {
     passthru(escapeshellarg(PHP_BINARY).' '.escapeshellarg($patcher), $code);
+
     if ($code !== 0) {
         exit($code);
     }
@@ -28,6 +28,7 @@ if (is_file($patcher)) {
 
 // 2) Verify patch actually landed (hard fail on CI if not).
 $analyserSource = is_file($analyser) ? (file_get_contents($analyser) ?: '') : '';
+
 if ($analyserSource === '' || ! str_contains($analyserSource, 'MAILMANAGER_FORCE_TYPE_COVERAGE_SYNC')) {
     // Accept alternate successful patch marker from useSync-only fallback.
     if (! str_contains($analyserSource, 'pokio()->useSync();') || preg_match('/\$maxProcesses\s*=\s*1\s*;/', $analyserSource) !== 1) {
@@ -78,6 +79,7 @@ $env['__PEST_PLUGIN_ENV'] = '1';
 fwrite(STDOUT, "+ {$command}\n");
 
 $process = proc_open($command, [0 => STDIN, 1 => STDOUT, 2 => STDERR], $pipes, $root, $env);
+
 if (! is_resource($process)) {
     fwrite(STDERR, "Failed to start type-coverage process\n");
     exit(1);
