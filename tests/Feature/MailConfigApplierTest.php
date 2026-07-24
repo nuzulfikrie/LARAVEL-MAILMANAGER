@@ -11,10 +11,10 @@ it('maps encryption none tls and ssl correctly and purges mailer config', functi
 
     $repo->putMany('mail', [
         'mailer' => 'smtp',
-        'host' => 'smtp.example.com',
+        'host' => 'smtp.example.test',
         'port' => 587,
-        'username' => 'user',
-        'password' => 'secret',
+        'username' => 'mailer@example.test',
+        'password' => 'password',
         'encryption' => 'none',
     ]);
 
@@ -25,7 +25,7 @@ it('maps encryption none tls and ssl correctly and purges mailer config', functi
         ->and($mailer['auto_tls'])->toBeFalse()
         ->and($mailer['require_tls'])->toBeFalse()
         ->and($mailer)->not->toHaveKey('encryption')
-        ->and($mailer['host'])->toBe('smtp.example.com');
+        ->and($mailer['host'])->toBe('smtp.example.test');
 
     $repo->putMany('mail', ['encryption' => 'tls']);
     $applier->apply();

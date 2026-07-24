@@ -52,6 +52,8 @@ jobs:
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --no-scripts
           composer run prepare
+          # Force single-process type-coverage (Pokio multi-fork corrupts .temp/v3.php on CI)
+          php scripts/patch-type-coverage-sync.php
 
       - name: Prepare Testbench bootstrap cache
         shell: bash
@@ -66,9 +68,9 @@ jobs:
       - name: Type Coverage
         if: runner.os != 'Windows'
         env:
-          # pest-plugin-type-coverage: isset($_ENV['__PEST_PLUGIN_ENV']) disables multi-fork cache races
           __PEST_PLUGIN_ENV: '1'
         run: |
+          php scripts/patch-type-coverage-sync.php
           rm -rf vendor/pestphp/pest-plugin-type-coverage/.temp
           composer test:types
 

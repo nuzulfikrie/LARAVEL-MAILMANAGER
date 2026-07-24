@@ -1,0 +1,13 @@
+# GitGuardian configuration for this package repository.
+# https://docs.gitguardian.com/ggshield-docs/configuration
+version: 2
+
+# Test fixtures intentionally use trivial doubles (e.g. password="password",
+# host="smtp.example.test"). They are not production secrets.
+paths-ignore:
+  - "tests/**"
+  - "**/tests/**"
+  - "docs/**"
+  - "resources/boost/**"
+  - "CHANGELOG.md"
+  - "ROADMAP.md"

@@ -82,25 +82,30 @@ class AdminUiDuskTest extends DuskTestCase
         $this->browseAsAdmin(function (Browser $browser): void {
             $browser->visit('/mailmanager/settings/mail')
                 ->waitForText('SMTP settings', 15)
-                ->type('host', 'smtp.dusk.test')
+                // Use trivial test doubles only (never real SMTP credentials in the repo).
+                ->type('host', 'smtp.example.test')
                 ->type('port', '587')
                 ->select('encryption', 'tls')
-                ->type('username', 'dusk-user')
-                ->type('password', 'super-secret-password')
-                ->type('from_address', 'noreply@dusk.test')
+                ->type('username', 'mailer@example.test')
+                ->type('password', 'password')
+                ->type('from_address', 'noreply@example.test')
                 ->type('from_name', 'Dusk App')
                 ->check('delivery_enabled')
                 ->press('Save settings')
                 ->waitForText('Mail settings saved.', 15)
-                ->assertInputValue('host', 'smtp.dusk.test')
-                ->assertInputValue('username', 'dusk-user')
-                ->assertDontSee('super-secret-password')
+                ->assertInputValue('host', 'smtp.example.test')
+                ->assertInputValue('username', 'mailer@example.test')
+                // Password input must stay blank after save (masked; never echoed).
                 ->assertInputValue('password', '');
         });
 
         $settings = app(SettingsRepository::class)->group('mail');
-        $this->assertSame('smtp.dusk.test', $settings['host']);
-        $this->assertSame('super-secret-password', $settings['password']);
+        $this->assertSame('smtp.example.test', $settings['host']);
+        $this->assertSame('password', $settings['password']);
+
+        $display = app(SettingsRepository::class)->groupForDisplay('mail');
+        $this->assertTrue((bool) ($display['password_set'] ?? false));
+        $this->assertSame('********', $display['password'] ?? null);
     }
 
     #[Test]

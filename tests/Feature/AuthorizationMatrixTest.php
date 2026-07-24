@@ -82,8 +82,8 @@ it('allows settings view without update ability but forbids password change', fu
     $this->get(route('mailmanager.settings.mail.edit'))->assertOk();
 
     $this->put(route('mailmanager.settings.mail.update'), [
-        'host' => 'evil.test',
-        'password' => 'new-secret',
+        'host' => 'smtp.example.test',
+        'password' => 'password',
         'encryption' => 'tls',
     ])->assertForbidden();
 });

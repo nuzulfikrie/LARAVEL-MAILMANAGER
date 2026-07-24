@@ -68,18 +68,19 @@ it('updates mail settings without exposing password', function () {
     $this->actingAsMailmanagerUser();
 
     $this->put(route('mailmanager.settings.mail.update'), [
-        'host' => 'smtp.ui.test',
+        'host' => 'smtp.example.test',
         'port' => 587,
         'encryption' => 'tls',
-        'password' => 'super-secret',
+        // Trivial test double only — never commit real SMTP credentials.
+        'password' => 'password',
         'delivery_enabled' => '1',
-        'from_address' => 'noreply@example.com',
+        'from_address' => 'noreply@example.test',
     ])->assertRedirect(route('mailmanager.settings.mail.edit'));
 
     $this->get(route('mailmanager.settings.mail.edit'))
         ->assertOk()
-        ->assertSee('smtp.ui.test')
-        ->assertDontSee('super-secret');
+        ->assertSee('smtp.example.test')
+        ->assertSee('********'); // masked password indicator, not plaintext
 });
 
 it('forbids settings without settings ability', function () {

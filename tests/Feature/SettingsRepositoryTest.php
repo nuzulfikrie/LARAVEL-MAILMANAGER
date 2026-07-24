@@ -9,24 +9,25 @@ it('stores encrypted password and returns decrypted in group', function () {
     $repo = app(SettingsRepository::class);
 
     $repo->putMany('mail', [
-        'host' => 'smtp.example.com',
+        'host' => 'smtp.example.test',
         'port' => 587,
-        'password' => 's3cret!',
+        // Trivial test double only — never commit real SMTP credentials.
+        'password' => 'password',
         'delivery_enabled' => true,
     ]);
 
     $mail = $repo->group('mail');
 
-    expect($mail['host'])->toBe('smtp.example.com')
+    expect($mail['host'])->toBe('smtp.example.test')
         ->and($mail['port'])->toBe(587)
-        ->and($mail['password'])->toBe('s3cret!')
+        ->and($mail['password'])->toBe('password')
         ->and($mail['delivery_enabled'])->toBeTrue();
 
     $display = $repo->groupForDisplay('mail');
 
     expect($display['password'])->toBe('********')
         ->and($display['password_set'])->toBeTrue()
-        ->and($display)->not->toHaveKey('s3cret!');
+        ->and($display['password'])->not->toBe('password');
 });
 
 it('keeps existing password when blank on putMany', function () {
