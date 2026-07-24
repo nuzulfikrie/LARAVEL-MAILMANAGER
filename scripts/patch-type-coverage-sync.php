@@ -27,16 +27,24 @@ if ($analyser === false) {
 }
 
 if (! str_contains($analyser, $marker)) {
-    $fromMax = <<<'PHP'
-        $maxProcesses = (Environment::supportsFork() && ! isset($_ENV['__PEST_PLUGIN_ENV']))
-            ? (Environment::maxProcesses() / 3)
-            : 1;
-PHP;
-
     $toMax = <<<'PHP'
         // MAILMANAGER_FORCE_TYPE_COVERAGE_SYNC
         $maxProcesses = 1;
 PHP;
+
+    // pest-plugin-type-coverage shapes:
+    // - v4.0.0–v4.0.1: always divides maxProcesses by 3
+    // - v4.0.2+: gates on supportsFork / __PEST_PLUGIN_ENV
+    $fromMaxCandidates = [
+        <<<'PHP'
+        $maxProcesses = (Environment::supportsFork() && ! isset($_ENV['__PEST_PLUGIN_ENV']))
+            ? (Environment::maxProcesses() / 3)
+            : 1;
+PHP,
+        <<<'PHP'
+        $maxProcesses = Environment::maxProcesses() / 3;
+PHP,
+    ];
 
     $fromAsync = <<<'PHP'
         if ($useAsync === false) {
@@ -53,12 +61,20 @@ PHP;
         pokio()->useSync();
 PHP;
 
-    if (! str_contains($analyser, $fromMax) || ! str_contains($analyser, $fromAsync)) {
+    $matchedMax = null;
+    foreach ($fromMaxCandidates as $fromMax) {
+        if (str_contains($analyser, $fromMax)) {
+            $matchedMax = $fromMax;
+            break;
+        }
+    }
+
+    if ($matchedMax === null || ! str_contains($analyser, $fromAsync)) {
         fwrite(STDERR, "type-coverage patch: Analyser.php upstream shape changed; cannot patch\n");
         exit(1);
     }
 
-    $analyser = str_replace($fromMax, $toMax, $analyser);
+    $analyser = str_replace($matchedMax, $toMax, $analyser);
     $analyser = str_replace($fromAsync, $toAsync, $analyser);
 
     if (file_put_contents($analyserPath, $analyser) === false) {
