@@ -49,8 +49,22 @@ class EmailLogFactory extends Factory
                 return;
             }
 
+            $existing = EmailTemplateVersion::query()
+                ->where('email_template_id', $log->email_template_id)
+                ->orderByDesc('version')
+                ->first();
+
+            if ($existing !== null) {
+                $log->forceFill([
+                    'email_template_version_id' => $existing->id,
+                ])->save();
+
+                return;
+            }
+
             $version = EmailTemplateVersion::factory()->create([
                 'email_template_id' => $log->email_template_id,
+                'version' => 1,
             ]);
 
             $log->forceFill([

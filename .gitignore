@@ -9,3 +9,9 @@ composer.lock
 .DS_Store
 .idea
 .vscode
+/chrome
+/chromedriver
+/tests/Browser/screenshots
+/tests/Browser/console
+/tests/Browser/source
+

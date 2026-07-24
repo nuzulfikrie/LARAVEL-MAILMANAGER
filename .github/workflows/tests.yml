@@ -42,7 +42,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
-          ini-values: error_reporting=E_ALL
+          # EGPCS is required so putenv()/process env reach $_ENV (pest type-coverage checks $_ENV).
+          ini-values: error_reporting=E_ALL, variables_order=EGPCS
           tools: composer:v2
           coverage: none
 
@@ -64,7 +65,12 @@ jobs:
 
       - name: Type Coverage
         if: runner.os != 'Windows'
-        run: composer test:types
+        env:
+          # pest-plugin-type-coverage: isset($_ENV['__PEST_PLUGIN_ENV']) disables multi-fork cache races
+          __PEST_PLUGIN_ENV: '1'
+        run: |
+          rm -rf vendor/pestphp/pest-plugin-type-coverage/.temp
+          composer test:types
 
       - name: Test Suite
         if: runner.os != 'Windows'
