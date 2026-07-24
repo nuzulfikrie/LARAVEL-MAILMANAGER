@@ -75,8 +75,13 @@ jobs:
         env:
           __PEST_PLUGIN_ENV: '1'
         run: |
+          set -e
           php scripts/patch-type-coverage-sync.php
+          # Hard proof the vendor plugin no longer multi-forks
+          grep -q 'MAILMANAGER_FORCE_TYPE_COVERAGE_SYNC\|pokio()->useSync()' vendor/pestphp/pest-plugin-type-coverage/src/Analyser.php
+          grep -q '\$maxProcesses = 1' vendor/pestphp/pest-plugin-type-coverage/src/Analyser.php
           rm -rf vendor/pestphp/pest-plugin-type-coverage/.temp
+          # Use the package entrypoint (never call raw pest --type-coverage in CI)
           composer test:types
 
       - name: Test Suite
